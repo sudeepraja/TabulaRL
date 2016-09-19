@@ -61,7 +61,9 @@ if __name__ == '__main__':
                 'BOLT': finite_tabular_agents.BOLT,
                 'UCRL2': finite_tabular_agents.UCRL2,
                 'UCFH': finite_tabular_agents.UCFH,
-                'EpsilonGreedy': finite_tabular_agents.EpsilonGreedy}
+                'EpsilonGreedy': finite_tabular_agents.EpsilonGreedy,
+                'OptQLearn': finite_tabular_agents.OptimisticQLearner,
+                'QLearn': finite_tabular_agents.QLearner}
 
     agent_constructor = alg_dict[args.alg]
 
