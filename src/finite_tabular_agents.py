@@ -769,12 +769,11 @@ class EpsilonGreedy(FiniteHorizonTabularAgent):
 #------------------------------------------------------------------------------
 # Q-learning with optimistic initialization
 #------------------------------------------------------------------------------
-
 class OptimisticQLearner(FiniteHorizonTabularAgent):
     ''' Naive Q-learning online with optimistic initialization'''
 
     def __init__(self, nState, nAction, epLen,
-                 learnRate=0.01, epsilon=0.05, qInit=False):
+                 learnRate=0.01, epsilon=0.05, qInit=False,**kwargs):
         # Fill in the variables
         self.nState = nState
         self.nAction = nAction
@@ -819,4 +818,41 @@ class OptimisticQLearner(FiniteHorizonTabularAgent):
         action = self.egreedy(state, timestep, self.epsilon)
         return action
 
+#------------------------------------------------------------------------------
+# Q-learning
+#------------------------------------------------------------------------------
+class QLearner(FiniteHorizonTabularAgent):
+
+    def __init__(self, nState, nAction, epLen,
+                 learnRate=0.01, epsilon=0.05, qInit=False,**kwargs):
+        # Fill in the variables
+        self.nState = nState
+        self.nAction = nAction
+        self.epLen = epLen
+        self.learnRate = learnRate
+        self.epsilon = epsilon
+
+
+        qVals = {}
+        for state in xrange(self.nState):
+            qVals[state] = np.zeros(nAction, dtype=np.float32)
+        self.qVals = qVals
+
+    def update_obs(self, oldState, action, reward, newState, pContinue, timestep):
+        oldQ = self.qVals[oldState][action]
+        newQ = reward + pContinue * self.qVals[newState].max()
+        self.qVals[oldState][action] = oldQ + self.learnRate * (newQ - oldQ)
+
+    def pick_action(self, state, timestep):
+
+        Q = self.qVals[state]
+        nAction = Q.size
+        noise = np.random.rand()
+
+        if noise < self.epsilon:
+            action = np.random.choice(nAction)
+        else:
+            action = np.random.choice(np.where(Q == Q.max())[0])
+
+        return action
 
